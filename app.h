@@ -48,25 +48,25 @@ private:
     }
 
     pair<bool, Pos>
-    check_ori(pair<bool, Pos> ans, int p)
+    check_ori(pair<string, Pos> ans, int p)
     {
-        if (ans.F) // isfire
+        if (ans.F == "fire") // isfire
         {
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
                 {
                     if (ans.S.x == i && ans.S.y == j && !(i == 0 && j == 0) && reload[p] >= RELOAD_SIZE)
-                        return ans;
+                        return {ans.F == "fire", ans.S};
                 }
             }
         }
-        else // is move
+        else if (ans.F == "move") // is move
         {
             for (Pos i : {Pos(0, 1), Pos(1, 0), Pos(-1, 0), Pos(0, -1)})
             {
                 if (i == ans.S && (pos[p] + i).isvalid())
-                    return ans;
+                    return {ans.F == "fire", ans.S};
             }
         } // default
         return {false, Pos(0, 0)};
@@ -139,21 +139,24 @@ private:
     {
         pair<bool, Pos> t[2] = {
             check_ori(tank1::update(
-                          pos[0],
-                          pos[1],
-                          ori[1],
-                          isfire[0],
-                          (reload[0] >= RELOAD_SIZE),
-                          health[0]),
-                      0),
+                        pos[0],
+                        pos[1],
+                        ori[1],
+                        isfire[0],
+                        (reload[0] >= RELOAD_SIZE),
+                        health[0]),
+                        0
+            ),
             check_ori(tank2::update(
-                          pos[1],
-                          pos[0],
-                          ori[0],
-                          isfire[1],
-                          (reload[1] >= RELOAD_SIZE),
-                          health[1]),
-                      1)};
+                        pos[1],
+                        pos[0],
+                        ori[0],
+                        isfire[1],
+                        (reload[1] >= RELOAD_SIZE),
+                        health[1]),
+                        1
+            )
+        };
         // set new fire and move
         for (int i = 0; i < 2; i++)
         {
