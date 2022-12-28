@@ -41,7 +41,7 @@ private:
     two_rand_pos()
     {
         Pos pos1 = Pos(rand() % N, rand() % N);
-        Pos pos2 = Pos(rand() % N, rand() & N);
+        Pos pos2 = Pos(rand() % N, rand() % N);
         if (pos1 == pos2)
             return two_rand_pos();
         return {pos1, pos2};
@@ -168,7 +168,7 @@ private:
 public:
     Game()
     {
-        // srand(time(0));
+        srand(time(0));
         for (int i = 0; i < N; i++)
             for (int j = 0; j < N; j++)
                 chart[i][j] = '.';
