@@ -187,10 +187,10 @@ public:
 
     void show()
     {
-        for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
         {
             cout << "-----------------------------------------\n|";
-            for (int j = 0; j < N; j++)
+            for (int i = 0; i < N; i++)
             {
                 if (chart[i][j] == fire_sign[0])
                     cout << "@ @|";

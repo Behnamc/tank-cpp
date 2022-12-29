@@ -1,0 +1,2 @@
+dont show |@B@|
+if a tank time limited . must thread.stop and move Pos(0, 0)

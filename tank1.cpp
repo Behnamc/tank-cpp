@@ -1,4 +1,4 @@
-// zaloo tank
+//* zaloo tank
 // targets: go to enemy and just fire from each side
 
 #include <iostream>
@@ -11,8 +11,8 @@ pair<string, Pos>
 goto_enemy(Pos pos, Pos epos, bool reload) {
     if (fight && reload) {
         try {
-            return Pos::fire_enemy(pos, epos);
-        } catch (int a) {}
+            return pos.fire_enemy(epos);
+        } catch (...) {}
     }
     if (pos.x > epos.x)
         return {"move", Pos(-1, 0)};
@@ -23,12 +23,13 @@ goto_enemy(Pos pos, Pos epos, bool reload) {
     if (pos.y < epos.y)
         return {"move", Pos(0, 1)};
     fight = true;
-    return {"move", Pos::rand_ori()};
+    return {"move", random_ori_move()};
 
 }
 
 pair<string, Pos> // example return {"move", Pos(1, 0)};
 update(Pos pos, Pos epos, Pos ori, bool isfire, bool reload, int health)
 {
+
     return goto_enemy(pos, epos, reload);
 }
