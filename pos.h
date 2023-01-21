@@ -75,7 +75,7 @@ public:
         return os << m.x << ' ' << m.y << ' ';
     }
 
-    pair<string, Pos> fire_enemy(Pos epos) throw(int)
+    pair<string, Pos> fire_enemy(Pos epos) // throw (int)
     {
         Pos angle_pos[4] = {Pos(1, 1), Pos(-1, 1), Pos(-1, -1), Pos(1, -1)};
         if (this->x == epos.x)

@@ -7,11 +7,23 @@
 #define F first
 #define S second
 using namespace std;
+using namespace std::chrono;
 
 #define N 10
 #define MAX_HEALTH 10
 #define RELOAD_SIZE 2
 #define SLEEP_TIME 500
+
+const int sibl = 50;
+
+char chart[N][N];
+char fire_sign[2] = {'+', '*'};
+Pos pos[2]; // set in two_rand_pos()
+Pos ori[2] = {Pos(0, 0), Pos(0, 0)};
+int health[2] = {MAX_HEALTH, MAX_HEALTH};
+int reload[2] = {2, 2};
+bool isfire[2] = {false, false};
+int sleep_time = 20;
 
 namespace tank1
 {
@@ -23,16 +35,59 @@ namespace tank2
 #include "tank2.cpp"
 }
 
-// #include "tank2.cpp"
+int end_;
+pair<string, Pos> return_[2];
 
-char chart[N][N];
-char fire_sign[2] = {'+', '*'};
-Pos pos[2]; // set in two_rand_pos()
-Pos ori[2] = {Pos(0, 0), Pos(0, 0)};
-int health[2] = {MAX_HEALTH, MAX_HEALTH};
-int reload[2] = {2, 2};
-bool isfire[2] = {false, false};
-int sleep = SLEEP_TIME;
+void keeper()
+{
+    this_thread::sleep_for(milliseconds(sleep_time * sibl));
+    for (int i = 0; i < 20 - sleep_time; i++)
+    {
+        if (end_ == 2)
+            return;
+        this_thread::sleep_for(milliseconds(sibl));
+    }
+}
+
+// void running(function f, int millisecond, int default)
+void run_tanks()
+{
+    // set default
+    end_ = 0;
+    return_[0] = {"move", Pos(0, 0)};
+    return_[1] = {"move", Pos(0, 0)};
+
+    auto f = [&]()
+    {
+        return_[0] = tank1::update(
+            pos[0],
+            pos[1],
+            ori[1],
+            isfire[0],
+            (reload[0] >= RELOAD_SIZE),
+            health[0]);
+        end_++;
+    };
+
+    auto g = [&]()
+    {
+        return_[1] = tank2::update(
+            pos[1],
+            pos[0],
+            ori[0],
+            isfire[1],
+            (reload[1] >= RELOAD_SIZE),
+            health[1]);
+        end_++;
+    };
+
+    thread t1(f);
+    thread t2(g);
+    thread keeper_(keeper);
+    t1.detach();
+    t2.detach();
+    keeper_.join();
+}
 
 class Game
 {
@@ -124,39 +179,33 @@ private:
 
     bool gameover()
     {
-        if (health[0] <= 0) {
+        if (health[0] == 0 && health[1] == 0) 
+        {
+            cout << "Equal\n";
+            return false;
+        }
+        else if (health[0] <= 0)
+        {
             cout << "B is winner\n";
             return false;
-        } else if (health[1] <= 0) {
+        }
+        else if (health[1] <= 0)
+        {
             cout << "A is winner\n";
             return false;
-        } else {
+        }
+        else
+        {
             return true;
         }
     }
 
     void get_inf_update()
     {
+        run_tanks();
         pair<bool, Pos> t[2] = {
-            check_ori(tank1::update(
-                        pos[0],
-                        pos[1],
-                        ori[1],
-                        isfire[0],
-                        (reload[0] >= RELOAD_SIZE),
-                        health[0]),
-                        0
-            ),
-            check_ori(tank2::update(
-                        pos[1],
-                        pos[0],
-                        ori[0],
-                        isfire[1],
-                        (reload[1] >= RELOAD_SIZE),
-                        health[1]),
-                        1
-            )
-        };
+            check_ori(return_[0], 0),
+            check_ori(return_[1], 1)};
         // set new fire and move
         for (int i = 0; i < 2; i++)
         {
@@ -216,7 +265,6 @@ public:
         while (gameover())
         {
             update();
-            this_thread::sleep_for(chrono::milliseconds(sleep));
         }
     }
 
@@ -231,7 +279,7 @@ void sleep_handler()
 {
     while (true)
     {
-        cin >> sleep;
+        cin >> sleep_time;
     }
 }
 
